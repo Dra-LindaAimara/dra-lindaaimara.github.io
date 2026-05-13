@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introducción a R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Dra.Linda Kempis" />
+    <meta name="date" content="2025-02-11" />
+    <script src="dplyr_2025_files/header-attrs-2.28/header-attrs.js"></script>
+    <link href="dplyr_2025_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="dplyr_2025_files/remark-css-0.0.1/rladies.css" rel="stylesheet" />
+    <link href="dplyr_2025_files/remark-css-0.0.1/rladies-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Introducción a R
+]
+.subtitle[
+## dplyr
+]
+.author[
+### Dra.Linda Kempis
+]
+.date[
+### 2025-02-11
+]
+
+---
+
+
+Cargar las siguientes librerias
+
+``` r
+# install.packages("datos")
+library(datos)
+```
+
+```
+## Warning: package 'datos' was built under R version 4.3.3
+```
+
+``` r
+library(tidyverse)
+```
+
+```
+## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+## ✔ purrr     1.0.2     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
+```
+Para repasar los verbos básicos de manipulación de datos de dplyr, usaremos vuelos. Este conjunto de datos contiene los 336, 776 vuelos que partieron de la ciudad de Nueva York durante el 2013. 
+
+---
+
+``` r
+head(vuelos)
+```
+
+```
+## # A tibble: 6 × 19
+##    anio   mes   dia horario_salida salida_programada atraso_salida
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;
+## 1  2013     1     1            517               515             2
+## 2  2013     1     1            533               529             4
+## 3  2013     1     1            542               540             2
+## 4  2013     1     1            544               545            -1
+## 5  2013     1     1            554               600            -6
+## 6  2013     1     1            554               558            -4
+## # ℹ 13 more variables: horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;,
+## #   atraso_llegada &lt;dbl&gt;, aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;,
+## #   origen &lt;chr&gt;, destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;,
+## #   hora &lt;dbl&gt;, minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+---
+- int significa enteros.
+
+- dbl significa dobles, o números reales.
+
+- chr significa vectores de caracteres o cadenas.
+
+- dttm significa fechas y horas (una fecha + una hora).
+
+Hay otros tres tipos comunes de variables que no se usan en este conjunto de datos:
+
+lgl significa lógico, vectores que solo contienen TRUE (verdadero) o FALSE (falso).
+
+fctr significa factores, que R usa para representar variables categóricas con valores posibles fijos.
+
+date significa fechas.
+---
+# Lo básico de dplyr
+
+dplyr te permiten resolver la gran mayoría de tus desafíos de manipulación de datos:
+
+- Filtrar o elegir las observaciones por sus valores (filter() — del inglés filtrar).
+- Reordenar las filas (arrange() — del inglés organizar).
+- Seleccionar las variables por sus nombres (select() — del inglés seleccionar).
+- Crear nuevas variables con transformaciones de variables existentes (mutate() — del inglés mutar o transformar).
+- Contraer muchos valores en un solo resumen (summarise() — del inglés resumir).
+
+---
+# Filtrar filas con filter()
+
+filter() te permite filtrar un subconjunto de observaciones según sus valores. El primer argumento es el nombre del data frame. El segundo y los siguientes argumentos son las expresiones que lo filtran. Por ejemplo, podemos seleccionar todos los vuelos del 1 de enero con:
+
+``` r
+filter(vuelos, mes == 1, dia == 1)
+```
+
+```
+## # A tibble: 842 × 19
+##     anio   mes   dia horario_salida salida_programada atraso_salida
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;
+##  1  2013     1     1            517               515             2
+##  2  2013     1     1            533               529             4
+##  3  2013     1     1            542               540             2
+##  4  2013     1     1            544               545            -1
+##  5  2013     1     1            554               600            -6
+##  6  2013     1     1            554               558            -4
+##  7  2013     1     1            555               600            -5
+##  8  2013     1     1            557               600            -3
+##  9  2013     1     1            557               600            -3
+## 10  2013     1     1            558               600            -2
+## # ℹ 832 more rows
+## # ℹ 13 more variables: horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;,
+## #   atraso_llegada &lt;dbl&gt;, aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;,
+## #   origen &lt;chr&gt;, destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;,
+## #   hora &lt;dbl&gt;, minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+
+---
+
+Cuando ejecutas esa línea de código, dplyr ejecuta la operación de filtrado y devuelve un nuevo data frame. Las funciones de dplyr nunca modifican su input, por lo que si deseas guardar el resultado, necesitarás usar el operador de asignación, &lt;-:
+
+
+``` r
+ene1 &lt;- filter(vuelos, mes == 1, dia == 1)
+```
+
+R imprime los resultados o los guarda en una variable. Si deseas hacer ambas cosas puedes escribir toda la línea entre paréntesis:
+
+
+``` r
+(dic25 &lt;- filter(vuelos, mes == 12, dia == 25))
+```
+
+```
+## # A tibble: 719 × 19
+##     anio   mes   dia horario_salida salida_programada atraso_salida
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;
+##  1  2013    12    25            456               500            -4
+##  2  2013    12    25            524               515             9
+##  3  2013    12    25            542               540             2
+##  4  2013    12    25            546               550            -4
+##  5  2013    12    25            556               600            -4
+##  6  2013    12    25            557               600            -3
+##  7  2013    12    25            557               600            -3
+##  8  2013    12    25            559               600            -1
+##  9  2013    12    25            559               600            -1
+## 10  2013    12    25            600               600             0
+## # ℹ 709 more rows
+## # ℹ 13 more variables: horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;,
+## #   atraso_llegada &lt;dbl&gt;, aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;,
+## #   origen &lt;chr&gt;, destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;,
+## #   hora &lt;dbl&gt;, minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+
+
+---
+
+# Comparaciones
+Para usar el filtrado de manera efectiva, debes saber cómo seleccionar las observaciones que deseas utilizando los operadores de comparación. R proporciona el conjunto estándar: &gt;, &gt;=, &lt;, &lt;=, != (no igual) y == (igual).
+---
+# Operadores lógicos
+Si tienes múltiples argumentos para filter() estos se combinan con “y”: cada expresión debe ser verdadera para que una fila se incluya en el output. Para otros tipos de combinaciones necesitarás usar operadores Booleanos: &amp; es “y”, | es “o”, y ! es “no”. La figura @ref(fig:bool-ops) muestra el conjunto completo de operaciones Booleanas.
+
+!['dplyr1'](dplyr_img/img_1.png)
+---
+
+El siguiente código sirve para encontrar todos los vuelos que partieron en noviembre o diciembre:
+
+
+``` r
+filter(vuelos, mes == 11 | mes == 12)
+```
+
+```
+## # A tibble: 55,403 × 19
+##     anio   mes   dia horario_salida salida_programada atraso_salida
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;
+##  1  2013    11     1              5              2359             6
+##  2  2013    11     1             35              2250           105
+##  3  2013    11     1            455               500            -5
+##  4  2013    11     1            539               545            -6
+##  5  2013    11     1            542               545            -3
+##  6  2013    11     1            549               600           -11
+##  7  2013    11     1            550               600           -10
+##  8  2013    11     1            554               600            -6
+##  9  2013    11     1            554               600            -6
+## 10  2013    11     1            554               600            -6
+## # ℹ 55,393 more rows
+## # ℹ 13 more variables: horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;,
+## #   atraso_llegada &lt;dbl&gt;, aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;,
+## #   origen &lt;chr&gt;, destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;,
+## #   hora &lt;dbl&gt;, minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+
+
+El orden de las operaciones no funciona como en español. No puedes escribir filter(vuelos, mes == (11 | 12)), que literalmente puede traducirse como “encuentra todos los vuelos que partieron en noviembre o diciembre”. En cambio, encontrará todos los meses que son iguales a 11 | 12, una expresión que resulta en ‘TRUE’ (verdadero). En un contexto numérico (como aquí), ‘TRUE’ se convierte en uno, por lo que encuentra todos los vuelos en enero, no en noviembre o diciembre. 
+---
+Una manera rápida y útil para resolver este problema es x %in% y (es decir, x en y). Esto seleccionará cada fila donde x es uno de los valores eny. Podríamos usarlo para reescribir el código de arriba:
+
+
+``` r
+nov_dic &lt;- filter(vuelos, mes %in% c(11, 12))
+```
+
+---
+# Valores faltantes
+
+filter() solo incluye filas donde la condición es TRUE; excluye tanto los valores FALSE como NA. Si deseas conservar valores perdidos, solicítalos explícitamente:
+
+
+``` r
+library(tidyverse)
+
+df &lt;- tibble(x = c(1, NA, 3))
+df
+```
+
+```
+## # A tibble: 3 × 1
+##       x
+##   &lt;dbl&gt;
+## 1     1
+## 2    NA
+## 3     3
+```
+
+``` r
+(filter(df, x &gt; 1))
+```
+
+```
+## # A tibble: 1 × 1
+##       x
+##   &lt;dbl&gt;
+## 1     3
+```
+---
+
+``` r
+filter(df, is.na(x) | x &gt; 1)
+```
+
+```
+## # A tibble: 2 × 1
+##       x
+##   &lt;dbl&gt;
+## 1    NA
+## 2     3
+```
+---
+# Reordenar las filas con arrange()
+
+arrange() funciona de manera similar a filter() excepto que en lugar de seleccionar filas, cambia su orden. La función toma un data frame y un conjunto de nombres de columnas (o expresiones más complicadas) para ordenar según ellas. Si proporcionas más de un nombre de columna, cada columna adicional se utilizará para romper empates en los valores de las columnas anteriores:
+
+
+``` r
+arrange(vuelos, anio, mes, dia)
+```
+
+```
+## # A tibble: 336,776 × 19
+##     anio   mes   dia horario_salida salida_programada atraso_salida
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;
+##  1  2013     1     1            517               515             2
+##  2  2013     1     1            533               529             4
+##  3  2013     1     1            542               540             2
+##  4  2013     1     1            544               545            -1
+##  5  2013     1     1            554               600            -6
+##  6  2013     1     1            554               558            -4
+##  7  2013     1     1            555               600            -5
+##  8  2013     1     1            557               600            -3
+##  9  2013     1     1            557               600            -3
+## 10  2013     1     1            558               600            -2
+## # ℹ 336,766 more rows
+## # ℹ 13 more variables: horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;,
+## #   atraso_llegada &lt;dbl&gt;, aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;,
+## #   origen &lt;chr&gt;, destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;,
+## #   hora &lt;dbl&gt;, minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+---
+Usa desc() para reordenar por una columna en orden descendente:
+
+
+
+``` r
+arrange(vuelos, desc(atraso_salida))
+```
+
+```
+## # A tibble: 336,776 × 19
+##     anio   mes   dia horario_salida salida_programada atraso_salida
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;
+##  1  2013     1     9            641               900          1301
+##  2  2013     6    15           1432              1935          1137
+##  3  2013     1    10           1121              1635          1126
+##  4  2013     9    20           1139              1845          1014
+##  5  2013     7    22            845              1600          1005
+##  6  2013     4    10           1100              1900           960
+##  7  2013     3    17           2321               810           911
+##  8  2013     6    27            959              1900           899
+##  9  2013     7    22           2257               759           898
+## 10  2013    12     5            756              1700           896
+## # ℹ 336,766 more rows
+## # ℹ 13 more variables: horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;,
+## #   atraso_llegada &lt;dbl&gt;, aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;,
+## #   origen &lt;chr&gt;, destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;,
+## #   hora &lt;dbl&gt;, minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+---
+Los valores faltantes siempre se ordenan al final:
+
+
+``` r
+df &lt;- tibble(x = c(5, 2, NA))
+arrange(df, x)
+```
+
+```
+## # A tibble: 3 × 1
+##       x
+##   &lt;dbl&gt;
+## 1     2
+## 2     5
+## 3    NA
+```
+
+``` r
+arrange(df, desc(x))
+```
+
+```
+## # A tibble: 3 × 1
+##       x
+##   &lt;dbl&gt;
+## 1     5
+## 2     2
+## 3    NA
+```
+---
+# Seleccionar columnas con select()
+
+No es raro obtener conjuntos de datos con cientos o incluso miles de variables. En este caso, el primer desafío a menudo se reduce a las variables que realmente te interesan. select() te permite seleccionar rápidamente un subconjunto útil utilizando operaciones basadas en los nombres de las variables.
+
+
+``` r
+# Seleccionar columnas por nombre
+select(vuelos, anio, mes, dia)
+```
+
+```
+## # A tibble: 336,776 × 3
+##     anio   mes   dia
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;
+##  1  2013     1     1
+##  2  2013     1     1
+##  3  2013     1     1
+##  4  2013     1     1
+##  5  2013     1     1
+##  6  2013     1     1
+##  7  2013     1     1
+##  8  2013     1     1
+##  9  2013     1     1
+## 10  2013     1     1
+## # ℹ 336,766 more rows
+```
+---
+
+``` r
+# Seleccionar todas las columnas entre anio y dia (incluyente)
+select(vuelos, anio:dia)
+```
+
+```
+## # A tibble: 336,776 × 3
+##     anio   mes   dia
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;
+##  1  2013     1     1
+##  2  2013     1     1
+##  3  2013     1     1
+##  4  2013     1     1
+##  5  2013     1     1
+##  6  2013     1     1
+##  7  2013     1     1
+##  8  2013     1     1
+##  9  2013     1     1
+## 10  2013     1     1
+## # ℹ 336,766 more rows
+```
+---
+
+
+``` r
+# Seleccionar todas las columnas excepto aquellas entre anio en dia (incluyente)
+select(vuelos, -(anio:dia))
+```
+
+```
+## # A tibble: 336,776 × 16
+##    horario_salida salida_programada atraso_salida horario_llegada
+##             &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;           &lt;int&gt;
+##  1            517               515             2             830
+##  2            533               529             4             850
+##  3            542               540             2             923
+##  4            544               545            -1            1004
+##  5            554               600            -6             812
+##  6            554               558            -4             740
+##  7            555               600            -5             913
+##  8            557               600            -3             709
+##  9            557               600            -3             838
+## 10            558               600            -2             753
+## # ℹ 336,766 more rows
+## # ℹ 12 more variables: llegada_programada &lt;int&gt;, atraso_llegada &lt;dbl&gt;,
+## #   aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;, origen &lt;chr&gt;,
+## #   destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;, hora &lt;dbl&gt;,
+## #   minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+---
+Hay una serie de funciones auxiliares que puedes usar dentro de select():
+
+- *starts_with("abc")*: coincide con los nombres que comienzan con “abc”.
+
+- *ends_with("xyz")*: coincide con los nombres que terminan con “xyz”.
+
+- *contains("ijk")*: coincide con los nombres que contienen “ijk”.
+
+- *matches("(.)\\1")* : selecciona variables que coinciden con una expresión regular. Esta en particular coincide con cualquier variable que contenga caracteres repetidos.
+
+- *num_range("x", 1:3)*: coincide con x1,x2 y x3.
+---
+
+
+*df &lt;- rename(df, new_name = old_name)*
+
+
+
+``` r
+(rename(vuelos, cola_num = codigo_cola))
+```
+
+```
+## # A tibble: 336,776 × 19
+##     anio   mes   dia horario_salida salida_programada atraso_salida
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;             &lt;int&gt;         &lt;dbl&gt;
+##  1  2013     1     1            517               515             2
+##  2  2013     1     1            533               529             4
+##  3  2013     1     1            542               540             2
+##  4  2013     1     1            544               545            -1
+##  5  2013     1     1            554               600            -6
+##  6  2013     1     1            554               558            -4
+##  7  2013     1     1            555               600            -5
+##  8  2013     1     1            557               600            -3
+##  9  2013     1     1            557               600            -3
+## 10  2013     1     1            558               600            -2
+## # ℹ 336,766 more rows
+## # ℹ 13 more variables: horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;,
+## #   atraso_llegada &lt;dbl&gt;, aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, cola_num &lt;chr&gt;,
+## #   origen &lt;chr&gt;, destino &lt;chr&gt;, tiempo_vuelo &lt;dbl&gt;, distancia &lt;dbl&gt;,
+## #   hora &lt;dbl&gt;, minuto &lt;dbl&gt;, fecha_hora &lt;dttm&gt;
+```
+---
+Otra opción es usar select() junto con el auxiliar everything() (todo, en inglés). Esto es útil si tienes un grupo de variables que te gustaría mover al comienzo del data frame.
+
+
+``` r
+select(vuelos, fecha_hora, tiempo_vuelo, everything())
+```
+
+```
+## # A tibble: 336,776 × 19
+##    fecha_hora          tiempo_vuelo  anio   mes   dia horario_salida
+##    &lt;dttm&gt;                     &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt;
+##  1 2013-01-01 05:00:00          227  2013     1     1            517
+##  2 2013-01-01 05:00:00          227  2013     1     1            533
+##  3 2013-01-01 05:00:00          160  2013     1     1            542
+##  4 2013-01-01 05:00:00          183  2013     1     1            544
+##  5 2013-01-01 06:00:00          116  2013     1     1            554
+##  6 2013-01-01 05:00:00          150  2013     1     1            554
+##  7 2013-01-01 06:00:00          158  2013     1     1            555
+##  8 2013-01-01 06:00:00           53  2013     1     1            557
+##  9 2013-01-01 06:00:00          140  2013     1     1            557
+## 10 2013-01-01 06:00:00          138  2013     1     1            558
+## # ℹ 336,766 more rows
+## # ℹ 13 more variables: salida_programada &lt;int&gt;, atraso_salida &lt;dbl&gt;,
+## #   horario_llegada &lt;int&gt;, llegada_programada &lt;int&gt;, atraso_llegada &lt;dbl&gt;,
+## #   aerolinea &lt;chr&gt;, vuelo &lt;int&gt;, codigo_cola &lt;chr&gt;, origen &lt;chr&gt;,
+## #   destino &lt;chr&gt;, distancia &lt;dbl&gt;, hora &lt;dbl&gt;, minuto &lt;dbl&gt;
+```
+---
+Además de seleccionar conjuntos de columnas existentes, a menudo es útil crear nuevas columnas en función de columnas existentes. Ese es el trabajo de mutate() (del inglés mutar o transformar).
+
+mutate() siempre agrega nuevas columnas al final de un conjunto de datos, así que comenzaremos creando un conjunto de datos más pequeño para que podamos ver las nuevas variables.
+
+
+
+``` r
+vuelos_sml &lt;- select(vuelos,
+  anio:dia,
+  starts_with("atraso"),
+  distancia,
+  tiempo_vuelo
+)
+```
+---
+
+
+``` r
+mutate(vuelos_sml,
+  ganancia = atraso_salida - atraso_llegada,
+  velocidad = distancia / tiempo_vuelo * 60
+)
+```
+
+```
+## # A tibble: 336,776 × 9
+##     anio   mes   dia atraso_salida atraso_llegada distancia tiempo_vuelo
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;         &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
+##  1  2013     1     1             2             11      1400          227
+##  2  2013     1     1             4             20      1416          227
+##  3  2013     1     1             2             33      1089          160
+##  4  2013     1     1            -1            -18      1576          183
+##  5  2013     1     1            -6            -25       762          116
+##  6  2013     1     1            -4             12       719          150
+##  7  2013     1     1            -5             19      1065          158
+##  8  2013     1     1            -3            -14       229           53
+##  9  2013     1     1            -3             -8       944          140
+## 10  2013     1     1            -2              8       733          138
+## # ℹ 336,766 more rows
+## # ℹ 2 more variables: ganancia &lt;dbl&gt;, velocidad &lt;dbl&gt;
+```
+---
+
+
+``` r
+mutate(vuelos_sml,
+  ganancia = atraso_salida - atraso_llegada,
+  horas = tiempo_vuelo / 60,
+  ganacia_por_hora = ganancia / horas
+)
+```
+
+```
+## # A tibble: 336,776 × 10
+##     anio   mes   dia atraso_salida atraso_llegada distancia tiempo_vuelo
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;         &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
+##  1  2013     1     1             2             11      1400          227
+##  2  2013     1     1             4             20      1416          227
+##  3  2013     1     1             2             33      1089          160
+##  4  2013     1     1            -1            -18      1576          183
+##  5  2013     1     1            -6            -25       762          116
+##  6  2013     1     1            -4             12       719          150
+##  7  2013     1     1            -5             19      1065          158
+##  8  2013     1     1            -3            -14       229           53
+##  9  2013     1     1            -3             -8       944          140
+## 10  2013     1     1            -2              8       733          138
+## # ℹ 336,766 more rows
+## # ℹ 3 more variables: ganancia &lt;dbl&gt;, horas &lt;dbl&gt;, ganacia_por_hora &lt;dbl&gt;
+```
+
+---
+#Si solo quieres conservar las nuevas variables, usa transmute():
+
+
+``` r
+transmute(vuelos,
+  ganancia = atraso_salida - atraso_llegada,
+  horas = tiempo_vuelo / 60,
+  ganancia_por_hora = ganancia / horas
+)
+```
+
+```
+## # A tibble: 336,776 × 3
+##    ganancia horas ganancia_por_hora
+##       &lt;dbl&gt; &lt;dbl&gt;             &lt;dbl&gt;
+##  1       -9 3.78              -2.38
+##  2      -16 3.78              -4.23
+##  3      -31 2.67             -11.6 
+##  4       17 3.05               5.57
+##  5       19 1.93               9.83
+##  6      -16 2.5               -6.4 
+##  7      -24 2.63              -9.11
+##  8       11 0.883             12.5 
+##  9        5 2.33               2.14
+## 10      -10 2.3               -4.35
+## # ℹ 336,766 more rows
+```
+---
+# Referencias
+
+https://es.r4ds.hadley.nz/05-transform.html#filtrar-filas-con-filter
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
